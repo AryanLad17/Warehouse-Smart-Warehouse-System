@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Warehouse — Graph-Based Robot Navigation</title>
+  <meta name="description" content="Interactive warehouse management system using Dijkstra, Kruskal, Prim, BFS, DFS graph algorithms for robot navigation and network optimization.">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Animated background particles -->
+  <div class="bg-particles" id="bgParticles"></div>
+
+  <!-- Header -->
+  <header id="mainHeader">
+    <div class="header-content">
+      <div class="logo-area">
+        <div class="logo-icon">
+          <svg viewBox="0 0 40 40" width="40" height="40">
+            <rect x="4" y="14" width="32" height="22" rx="3" fill="none" stroke="currentColor" stroke-width="2.5"/>
+            <path d="M12 14V8a8 8 0 0 1 16 0v6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="20" cy="25" r="4" fill="currentColor"/>
+            <line x1="20" y1="25" x2="20" y2="30" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <h1>Smart Warehouse</h1>
+          <p class="subtitle">Graph-Based Robot Navigation &amp; Optimization</p>
+        </div>
+      </div>
+      <nav class="top-nav" id="mainNav">
+        <ul>
+          <li class="nav-item active" data-target="view-inventory" data-color="emerald">
+            <span class="nav-icon">📦</span> Inventory
+          </li>
+          <li class="nav-item" data-target="view-dijkstra" data-color="cyan">
+            <span class="nav-icon">🤖</span> Shortest Path
+          </li>
+          <li class="nav-item" data-target="view-kruskal" data-color="violet">
+            <span class="nav-icon">🌐</span> Kruskal MST
+          </li>
+          <li class="nav-item" data-target="view-prim" data-color="amber">
+            <span class="nav-icon">⚡</span> Prim MST
+          </li>
+          <li class="nav-item" data-target="view-bfs" data-color="rose">
+            <span class="nav-icon">🔍</span> BFS
+          </li>
+          <li class="nav-item" data-target="view-dfs" data-color="sky">
+            <span class="nav-icon">🔄</span> DFS
+          </li>
+          <li class="nav-item" data-target="view-lookup" data-color="teal">
+            <span class="nav-icon">🏷️</span> Lookup
+          </li>
+          <li class="nav-item" data-target="view-transfer" data-color="orange">
+            <span class="nav-icon">🚚</span> Transfer
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main App -->
+  <main class="app-container">
+
+    <!-- Left Panel -->
+    <section class="panel control-panel">
+
+      <!-- INVENTORY INSERT -->
+      <div id="view-inventory" class="card view-section active-view glass-emerald">
+        <div class="card-header">
+          <h2>📦 Insert Items</h2>
+          <span class="badge badge-emerald">Inventory</span>
+        </div>
+        <div class="input-group">
+          <label for="invProductName">Product Name</label>
+          <input type="text" id="invProductName" placeholder="e.g., Widget A">
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="invQuantity">Quantity</label>
+            <input type="number" id="invQuantity" placeholder="0" min="1" value="10">
+          </div>
+          <div class="input-group">
+            <label for="invRack">Rack Node (0-4)</label>
+            <input type="number" id="invRack" placeholder="0-4" min="0" max="4" value="0">
+          </div>
+        </div>
+        <div class="actions">
+          <button id="btnInsert" class="btn btn-emerald">
+            <span class="btn-shine"></span>
+            ➕ Insert into Warehouse
+          </button>
+        </div>
+        <div class="inventory-display">
+          <h3>📋 Current Inventory</h3>
+          <ul id="inventoryList" class="inventory-list">
+            <li><span class="text-muted">No items inserted yet.</span></li>
+          </ul>
+        </div>
+
+        <!-- Add Edge Section -->
+        <div class="edge-section">
+          <div class="card-header" style="margin-top:18px;">
+            <h2>🔗 Add Edge</h2>
+            <span class="badge badge-violet">Graph</span>
+          </div>
+          <p class="desc">Dynamically add connections between warehouse racks.</p>
+          <div class="input-row">
+            <div class="input-group">
+              <label for="edgeFrom">From Node</label>
+              <input type="number" id="edgeFrom" placeholder="0-4" min="0" max="4" value="0">
+            </div>
+            <div class="input-group">
+              <label for="edgeTo">To Node</label>
+              <input type="number" id="edgeTo" placeholder="0-4" min="0" max="4" value="4">
+            </div>
+            <div class="input-group">
+              <label for="edgeWeight">Weight</label>
+              <input type="number" id="edgeWeight" placeholder="1-99" min="1" value="12">
+            </div>
+          </div>
+          <div class="actions">
+            <button id="btnAddEdge" class="btn btn-violet">
+              <span class="btn-shine"></span>
+              🔗 Add Edge to Graph
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DIJKSTRA -->
+      <div id="view-dijkstra" class="card view-section hidden-view glass-cyan">
+        <div class="card-header">
+          <h2>🤖 Shortest Path (Dijkstra)</h2>
+          <span class="badge badge-cyan">Navigation</span>
+        </div>
+        <p class="desc">Find the optimal route for robot delivery using Dijkstra's algorithm.</p>
+        <div class="input-group">
+          <label for="productName">Target Product (Optional)</label>
+          <input type="text" id="productName" placeholder="e.g., Widget A">
+        </div>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="startNode">Start Node</label>
+            <input type="number" id="startNode" placeholder="0-4" min="0" max="4" value="0">
+          </div>
+          <div class="input-group">
+            <label for="destNode">Destination</label>
+            <input type="number" id="destNode" placeholder="0-4" min="0" max="4" value="3">
+          </div>
+        </div>
+        <div class="actions">
+          <button id="btnShortestPath" class="btn btn-cyan">
+            <span class="btn-shine"></span>
+            🗺️ Find Route
+          </button>
+          <button id="btnSimulate" class="btn btn-gradient-cyan">
+            <span class="btn-shine"></span>
+            🚀 Dispatch Robot
+          </button>
+        </div>
+      </div>
+
+      <!-- KRUSKAL MST -->
+      <div id="view-kruskal" class="card view-section hidden-view glass-violet">
+        <div class="card-header">
+          <h2>🌐 Kruskal's MST</h2>
+          <span class="badge badge-violet">Network</span>
+        </div>
+        <p class="desc">Find the Minimum Spanning Tree using Kruskal's greedy edge-sorting algorithm. Connects all racks at minimum total cable cost.</p>
+        <div class="actions">
+          <button id="btnShowKruskal" class="btn btn-violet">
+            <span class="btn-shine"></span>
+            🔗 Generate Kruskal MST
+          </button>
+        </div>
+      </div>
+
+      <!-- PRIM MST -->
+      <div id="view-prim" class="card view-section hidden-view glass-amber">
+        <div class="card-header">
+          <h2>⚡ Prim's MST</h2>
+          <span class="badge badge-amber">Network</span>
+        </div>
+        <p class="desc">Grow a Minimum Spanning Tree vertex-by-vertex from a root node using Prim's algorithm.</p>
+        <div class="input-group">
+          <label for="mstStartNode">Root Node</label>
+          <input type="number" id="mstStartNode" placeholder="0-4" min="0" max="4" value="0">
+        </div>
+        <div class="actions">
+          <button id="btnShowPrimMST" class="btn btn-amber">
+            <span class="btn-shine"></span>
+            ⚡ Generate Prim's MST
+          </button>
+        </div>
+      </div>
+
+      <!-- BFS -->
+      <div id="view-bfs" class="card view-section hidden-view glass-rose">
+        <div class="card-header">
+          <h2>🔍 Breadth-First Search</h2>
+          <span class="badge badge-rose">Traversal</span>
+        </div>
+        <p class="desc">Sweep the warehouse level-by-level from a starting node. Ideal for layer-based scanning.</p>
+        <div class="input-group">
+          <label for="bfsStartNode">Origin Node</label>
+          <input type="number" id="bfsStartNode" placeholder="0-4" min="0" max="4" value="0">
+        </div>
+        <div class="actions">
+          <button id="btnRunBFS" class="btn btn-rose">
+            <span class="btn-shine"></span>
+            📡 Run BFS Sweep
+          </button>
+        </div>
+      </div>
+
+      <!-- DFS -->
+      <div id="view-dfs" class="card view-section hidden-view glass-sky">
+        <div class="card-header">
+          <h2>🔄 Depth-First Search</h2>
+          <span class="badge badge-sky">Traversal</span>
+        </div>
+        <p class="desc">Explore the warehouse by diving deep along each branch before backtracking. Ideal for exhaustive inspection.</p>
+        <div class="input-group">
+          <label for="dfsStartNode">Origin Node</label>
+          <input type="number" id="dfsStartNode" placeholder="0-4" min="0" max="4" value="0">
+        </div>
+        <div class="actions">
+          <button id="btnRunDFS" class="btn btn-sky">
+            <span class="btn-shine"></span>
+            🌀 Run DFS Exploration
+          </button>
+        </div>
+      </div>
+
+      <!-- PRODUCT LOOKUP & UPDATE -->
+      <div id="view-lookup" class="card view-section hidden-view glass-teal">
+        <div class="card-header">
+          <h2>🏷️ Product Lookup & Update</h2>
+          <span class="badge badge-teal">Search</span>
+        </div>
+        <p class="desc">Search for a product across all racks, find its location, and update quantities.</p>
+        <div class="input-group">
+          <label for="lookupProduct">Product Name</label>
+          <input type="text" id="lookupProduct" placeholder="e.g., Widget A">
+        </div>
+        <div class="actions">
+          <button id="btnLookup" class="btn btn-teal">
+            <span class="btn-shine"></span>
+            🔎 Search Product
+          </button>
+        </div>
+        <div id="lookupResult" class="lookup-result hidden"></div>
+        <div class="input-row mt-3" id="updateSection" style="display:none;">
+          <div class="input-group">
+            <label for="updateQty">Adjust Quantity (+/-)</label>
+            <input type="number" id="updateQty" placeholder="e.g., 5 or -3" value="5">
+          </div>
+          <div class="input-group" style="justify-content: flex-end;">
+            <button id="btnUpdateQty" class="btn btn-teal-sm">✏️ Update</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRODUCT TRANSFER -->
+      <div id="view-transfer" class="card view-section hidden-view glass-orange">
+        <div class="card-header">
+          <h2>🚚 Product Transfer</h2>
+          <span class="badge badge-orange">Transfer</span>
+        </div>
+        <p class="desc">Move products between racks using robot dispatch. The robot carries items along the shortest path and updates inventory dynamically.</p>
+        <div class="input-row">
+          <div class="input-group">
+            <label for="transferFrom">Source Rack</label>
+            <input type="number" id="transferFrom" placeholder="0-4" min="0" max="4" value="0">
+          </div>
+          <div class="input-group">
+            <label for="transferTo">Destination Rack</label>
+            <input type="number" id="transferTo" placeholder="0-4" min="0" max="4" value="3">
+          </div>
+        </div>
+        <div class="input-group">
+          <label for="transferProduct">Product to Transfer</label>
+          <select id="transferProduct" class="transfer-select">
+            <option value="">— Select source rack first —</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="transferQty">Quantity to Move</label>
+          <input type="number" id="transferQty" placeholder="1" min="1" value="1">
+        </div>
+        <div class="transfer-preview" id="transferPreview">
+          <div class="transfer-preview-header">📋 Transfer Preview</div>
+          <div class="transfer-preview-body" id="transferPreviewBody">
+            <span class="text-muted">Select a product to see preview</span>
+          </div>
+        </div>
+        <div class="actions">
+          <button id="btnTransfer" class="btn btn-orange">
+            <span class="btn-shine"></span>
+            🚚 Dispatch Transfer Robot
+          </button>
+        </div>
+        <div class="transfer-log" id="transferLog"></div>
+      </div>
+
+      <!-- RESET -->
+      <div class="actions mt-auto">
+        <button id="btnReset" class="btn btn-reset">↺ Reset Visualization</button>
+      </div>
+
+      <!-- Terminal -->
+      <div class="card terminal-card">
+        <div class="card-header">
+          <h2>💻 Terminal Feed</h2>
+          <span class="terminal-dot"></span>
+        </div>
+        <div class="terminal-log" id="terminalLog">
+          <p id="activityLog" class="log-line">> System ready...</p>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Right Panel: Graph Visualization -->
+    <section class="panel vis-panel">
+      <div class="vis-panel-header">
+        <span class="vis-label">🗺️ Warehouse Graph</span>
+        <span class="vis-badge" id="visBadge">IDLE</span>
+      </div>
+      <div class="graph-container" id="graphContainer">
+        <!-- SVG edges layer -->
+        <svg id="edgesSvg" class="edges-layer" width="100%" height="100%">
+          <defs>
+            <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+            <!-- Gradient definitions for edges -->
+            <linearGradient id="edgeGradDefault" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#6366f1" stop-opacity="0.6"/>
+              <stop offset="100%" stop-color="#ec4899" stop-opacity="0.6"/>
+            </linearGradient>
+          </defs>
+          <g id="edgesGroup"></g>
+        </svg>
+
+        <!-- Nodes container -->
+        <div id="nodesContainer" class="nodes-layer"></div>
+
+        <!-- Robot indicator -->
+        <div id="robot" class="robot-indicator hidden">
+          <div class="robot-body">🤖</div>
+          <div class="robot-cargo" id="robotCargo"></div>
+          <div class="robot-glow"></div>
+          <div class="robot-glow robot-glow-2"></div>
+        </div>
+
+        <!-- Rack Popup -->
+        <div id="rackPopup" class="rack-popup">
+          <div class="rack-popup-inner">
+            <div class="rack-popup-header">
+              <div class="rack-popup-title">
+                <span class="rack-popup-icon">📦</span>
+                <h3 id="rackPopupTitle">Rack 0</h3>
+              </div>
+              <button id="rackPopupClose" class="rack-popup-close">✕</button>
+            </div>
+            <div class="rack-popup-body">
+              <div class="rack-popup-stats" id="rackPopupStats">
+                <div class="rack-stat">
+                  <span class="rack-stat-label">Products</span>
+                  <span class="rack-stat-value" id="rackStatProducts">0</span>
+                </div>
+                <div class="rack-stat">
+                  <span class="rack-stat-label">Total Qty</span>
+                  <span class="rack-stat-value" id="rackStatQty">0</span>
+                </div>
+                <div class="rack-stat">
+                  <span class="rack-stat-label">Connections</span>
+                  <span class="rack-stat-value" id="rackStatEdges">0</span>
+                </div>
+              </div>
+              <div class="rack-popup-products">
+                <h4>Stored Products</h4>
+                <ul id="rackProductList" class="rack-product-list">
+                  <li class="rack-empty-msg">No products stored here</li>
+                </ul>
+              </div>
+              <div class="rack-popup-connections">
+                <h4>Connected Racks</h4>
+                <div id="rackConnectionList" class="rack-connection-list"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Algorithm stats bar -->
+      <div class="stats-bar" id="statsBar">
+        <div class="stat-item" id="statAlgo">
+          <span class="stat-label">Algorithm</span>
+          <span class="stat-value" id="statAlgoValue">—</span>
+        </div>
+        <div class="stat-item" id="statCost">
+          <span class="stat-label">Cost / Distance</span>
+          <span class="stat-value" id="statCostValue">—</span>
+        </div>
+        <div class="stat-item" id="statEdges">
+          <span class="stat-label">Edges</span>
+          <span class="stat-value" id="statEdgesValue">7</span>
+        </div>
+        <div class="stat-item" id="statNodes">
+          <span class="stat-label">Nodes</span>
+          <span class="stat-value" id="statNodesValue">5</span>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
