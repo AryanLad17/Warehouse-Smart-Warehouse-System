@@ -9,7 +9,7 @@ const graphData = {
   nodes: [
     { id: 0, x: 15, y: 50, label: "0" },
     { id: 1, x: 42, y: 20, label: "1" },
-    { id: 2, x: 42, y: 78, label: "2" },
+    { id: 2, x: 44, y: 78, label: "2" },
     { id: 3, x: 75, y: 25, label: "3" },
     { id: 4, x: 75, y: 72, label: "4" }
   ],
