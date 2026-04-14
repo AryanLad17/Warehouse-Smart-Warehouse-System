@@ -182,7 +182,8 @@ public:
 
         int cost = 0;
 
-        for (auto &e : edges) {
+        for (int i = 0; i < edges.size(); i++) {
+            Edge e = edges[i];
             if (find(e.u) != find(e.v)) {
                 cout << e.u << " -> " << e.v << " : " << e.w << endl;
                 cost += e.w;
