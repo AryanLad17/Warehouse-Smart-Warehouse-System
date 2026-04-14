@@ -731,11 +731,11 @@ input::placeholder {
 }
 
 .edge-line {
-  stroke: rgba(120, 120, 180, 0.35);
-  stroke-width: 2.5px;
+  stroke: rgba(120, 120, 180, 0.5);
+  stroke-width: 3px;
   stroke-linecap: round;
-  transition: stroke 0.5s ease, stroke-width 0.5s ease;
-  filter: url(#glow);
+  transition: stroke 0.5s ease, stroke-width 0.5s ease, filter 0.5s ease;
+  filter: drop-shadow(0 0 4px rgba(99, 102, 241, 0.3));
 }
 
 .edge-weight {
