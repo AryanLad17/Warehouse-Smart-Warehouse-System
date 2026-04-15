@@ -836,13 +836,27 @@ input::placeholder {
 .node::after {
   content: attr(data-rack-label);
   position: absolute;
-  bottom: -26px;
+  top: 115%;
+  left: 50%;
+  transform: translateX(-50%);
   font-size: 0.6rem;
   font-weight: 600;
-  color: var(--text-muted);
+  color: var(--text-primary);
   letter-spacing: 0.5px;
   white-space: nowrap;
   text-transform: uppercase;
+  background: rgba(10, 10, 26, 0.85);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+  pointer-events: none;
+}
+
+.node.node-shift-label::after {
+  top: 50%;
+  left: 120%;
+  transform: translateY(-50%);
 }
 
 .node:hover {

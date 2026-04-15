@@ -150,6 +150,23 @@ function renderGraph() {
   graphData.nodes.forEach(node => {
     const div = document.createElement('div');
     div.className = 'node';
+    
+    // Detect if this node has any vertical edges (x1 === x2)
+    let hasVerticalEdge = false;
+    graphData.edges.forEach(e => {
+      if (e.u === node.id || e.v === node.id) {
+        const otherId = (e.u === node.id) ? e.v : e.u;
+        const otherNode = graphData.nodes.find(n => n.id === otherId);
+        if (otherNode && otherNode.x === node.x) {
+          hasVerticalEdge = true;
+        }
+      }
+    });
+
+    if (hasVerticalEdge) {
+      div.classList.add('node-shift-label');
+    }
+
     div.id = `node-${node.id}`;
     div.style.left = `${node.x}%`;
     div.style.top = `${node.y}%`;
