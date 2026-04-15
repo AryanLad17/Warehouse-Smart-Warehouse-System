@@ -108,9 +108,32 @@ function renderGraph() {
     line.setAttribute('id', `edge-${edge.u}-${edge.v}`);
     edgesGroup.appendChild(line);
 
+    // Calculate midpoint
+    let midX = (nU.x + nV.x) / 2;
+    let midY = (nU.y + nV.y) / 2;
+    
+    // Calculate direction vector
+    let dx = nV.x - nU.x;
+    let dy = nV.y - nU.y;
+    let len = Math.sqrt(dx * dx + dy * dy);
+    
+    // Calculate perpendicular normal vector (nx, ny)
+    let nx = -dy / len;
+    let ny = dx / len;
+    
+    // Ensure the label always offsets towards the "top" or "left" side consistently
+    if (ny > 0 || (Math.abs(ny) < 0.001 && nx < 0)) {
+      nx = -nx;
+      ny = -ny;
+    }
+    
+    // Set an offset in percentage (adjust as needed for aesthetics)
+    let offset = 2.5;
+
     const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-    text.setAttribute('x', `${(nU.x + nV.x) / 2}%`);
-    text.setAttribute('y', `${(nU.y + nV.y) / 2 - 2}%`);
+    text.setAttribute('x', `${midX + nx * offset}%`);
+    text.setAttribute('y', `${midY + ny * offset}%`); 
+    text.setAttribute('dominant-baseline', 'central');
     text.setAttribute('class', 'edge-weight');
     text.setAttribute('id', `weight-${edge.u}-${edge.v}`);
     text.textContent = edge.w;
@@ -153,11 +176,33 @@ function renderSingleEdge(edge) {
   line.setAttribute('id', `edge-${edge.u}-${edge.v}`);
   edgesGroup.appendChild(line);
 
-  const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-  text.setAttribute('x', `${(nU.x + nV.x) / 2}%`);
-  text.setAttribute('y', `${(nU.y + nV.y) / 2 - 2}%`);
-  text.setAttribute('class', 'edge-weight');
-  text.setAttribute('id', `weight-${edge.u}-${edge.v}`);
+    // Calculate midpoint
+    let midX = (nU.x + nV.x) / 2;
+    let midY = (nU.y + nV.y) / 2;
+    
+    // Calculate direction vector
+    let dx = nV.x - nU.x;
+    let dy = nV.y - nU.y;
+    let len = Math.sqrt(dx * dx + dy * dy);
+    
+    // Calculate perpendicular normal vector
+    let nx = -dy / len;
+    let ny = dx / len;
+    
+    // Ensure the label always offsets towards the top/left consistently
+    if (ny > 0 || (Math.abs(ny) < 0.001 && nx < 0)) {
+      nx = -nx;
+      ny = -ny;
+    }
+    
+    let offset = 2.5;
+
+    const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    text.setAttribute('x', `${midX + nx * offset}%`);
+    text.setAttribute('y', `${midY + ny * offset}%`);
+    text.setAttribute('dominant-baseline', 'central');
+    text.setAttribute('class', 'edge-weight');
+    text.setAttribute('id', `weight-${edge.u}-${edge.v}`);
   text.textContent = edge.w;
   text.style.opacity = '0';
   text.style.transition = 'opacity 0.5s ease 0.3s';

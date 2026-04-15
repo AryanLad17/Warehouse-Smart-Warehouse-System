@@ -739,12 +739,19 @@ input::placeholder {
 }
 
 .edge-weight {
-  fill: var(--text-muted);
+  fill: #ffffff;
   font-family: var(--font-mono);
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   text-anchor: middle;
-  transition: fill 0.5s ease;
+  dominant-baseline: central;
+  transition: fill 0.5s ease, filter 0.5s ease;
+  paint-order: stroke fill;
+  stroke: rgba(0, 0, 0, 0.85);
+  stroke-width: 4px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.9));
 }
 
 /* Dijkstra path highlight */
