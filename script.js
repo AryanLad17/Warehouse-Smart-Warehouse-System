@@ -364,7 +364,6 @@ function setupEventListeners() {
   document.getElementById('btnShowKruskal').addEventListener('click', handleShowKruskalMST);
   document.getElementById('btnShowPrimMST').addEventListener('click', handleShowPrimMST);
   document.getElementById('btnRunBFS').addEventListener('click', handleRunBFS);
-  document.getElementById('btnRunDFS').addEventListener('click', handleRunDFS);
   document.getElementById('btnLookup').addEventListener('click', handleLookup);
   document.getElementById('btnUpdateQty').addEventListener('click', handleUpdateQty);
   document.getElementById('btnReset').addEventListener('click', () => { resetVisualization(); closeRackPopup(); });
@@ -686,64 +685,6 @@ async function handleRunBFS() {
 
   updateStats('BFS', `Order: ${order.join('→')}`);
   typeLog(`> ✅ BFS Complete: [${order.join(' → ')}]`);
-  setBadge('COMPLETE', false);
-  isAnimating = false;
-}
-
-// ──────────────── 6. DFS ────────────────
-async function handleRunDFS() {
-  if (isAnimating) return;
-  resetVisualization();
-  closeRackPopup();
-
-  const startId = parseInt(document.getElementById('dfsStartNode').value);
-  if (isNaN(startId) || startId < 0 || startId > 4) return;
-
-  isAnimating = true;
-  setBadge('RUNNING', true);
-  updateStats('DFS', '—');
-  typeLog(`> 🌀 DFS exploration from Node ${startId}...`);
-
-  robot.style.transition = 'top 0.5s ease-out, left 0.5s ease-out';
-  robot.classList.remove('hidden');
-
-  const visited = new Set();
-  const order = [];
-  const stack = [startId];
-
-  while (stack.length > 0) {
-    const u = stack.pop();
-    if (visited.has(u)) continue;
-    visited.add(u);
-    order.push(u);
-
-    const uNode = graphData.nodes.find(n => n.id === u);
-    robot.style.left = `${uNode.x}%`;
-    robot.style.top  = `${uNode.y}%`;
-    await sleep(450);
-
-    const el = document.getElementById(`node-${u}`);
-    el.classList.add('dfs-glow');
-    typeLog(`> DFS visiting: Node ${u}`);
-    await sleep(700);
-
-    const neighbors = [];
-    graphData.edges.forEach(e => {
-      if (e.u === u && !visited.has(e.v)) {
-        neighbors.push(e.v);
-        edgeHighlight(e.u, e.v, 'dfs-active-edge');
-      } else if (e.v === u && !visited.has(e.u)) {
-        neighbors.push(e.u);
-        edgeHighlight(e.u, e.v, 'dfs-active-edge');
-      }
-    });
-
-    neighbors.sort((a, b) => b - a);
-    neighbors.forEach(v => stack.push(v));
-  }
-
-  updateStats('DFS', `Order: ${order.join('→')}`);
-  typeLog(`> ✅ DFS Complete: [${order.join(' → ')}]`);
   setBadge('COMPLETE', false);
   isAnimating = false;
 }
