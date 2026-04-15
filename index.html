@@ -133,19 +133,15 @@
           <h2>🤖 Shortest Path (Dijkstra)</h2>
           <span class="badge badge-cyan">Navigation</span>
         </div>
-        <p class="desc">Find the optimal route for robot delivery using Dijkstra's algorithm.</p>
-        <div class="input-group">
-          <label for="productName">Target Product (Optional)</label>
-          <input type="text" id="productName" placeholder="e.g., Widget A">
-        </div>
+        <p class="desc">Find the optimal route to retrieve a specific product using Dijkstra's algorithm.</p>
         <div class="input-row">
           <div class="input-group">
-            <label for="startNode">Start Node</label>
-            <input type="number" id="startNode" placeholder="0-4" min="0" max="4" value="0">
+            <label for="productName">Target Product To Retrieve</label>
+            <input type="text" id="productName" placeholder="e.g., Widget A">
           </div>
           <div class="input-group">
-            <label for="destNode">Destination</label>
-            <input type="number" id="destNode" placeholder="0-4" min="0" max="4" value="3">
+            <label for="startNode">Robot Start Node</label>
+            <input type="number" id="startNode" placeholder="0-4" min="0" max="4" value="0">
           </div>
         </div>
         <div class="actions">

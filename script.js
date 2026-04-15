@@ -69,6 +69,12 @@ function init() {
   typeLog("> System initialized. Click any rack node to inspect it!");
 }
 
+function shakeElement(el) {
+  if (!el) return;
+  el.classList.add('shake');
+  setTimeout(() => el.classList.remove('shake'), 400);
+}
+
 // ──────────────── BACKGROUND PARTICLES ────────────────
 function createParticles() {
   const container = document.getElementById('bgParticles');
@@ -514,13 +520,43 @@ function handleFindShortestPath() {
   resetVisualization();
   closeRackPopup();
 
+  const name = document.getElementById('productName').value.trim();
   const startId = parseInt(document.getElementById('startNode').value);
-  const destId  = parseInt(document.getElementById('destNode').value);
-  if (isNaN(startId) || isNaN(destId) || startId < 0 || destId > 4 || startId === destId) {
-    typeLog("> ❌ Invalid nodes. Ensure start ≠ destination, both 0-4.");
+  
+  if (!name) {
+    typeLog("> ❌ Please enter a Target Product name to search for.");
+    shakeElement(document.getElementById('btnShortestPath'));
+    return;
+  }
+  
+  if (isNaN(startId) || startId < 0 || startId > 4) {
+    typeLog("> ❌ Invalid start node. Ensure it is between 0-4.");
     return;
   }
 
+  // 1. Search for the Item and find its location (simulates search & findLocation in C++)
+  let destId = -1;
+  for (let rack = 0; rack < 5; rack++) {
+    let found = nodeInventories[rack].find(p => p.name.toLowerCase() === name.toLowerCase());
+    if (found) {
+      destId = rack;
+      break;
+    }
+  }
+
+  // 2. If not found
+  if (destId === -1) {
+    typeLog(`> ❌ The Item "${name}" you are searching for is not available`);
+    shakeElement(document.getElementById('btnShortestPath'));
+    return;
+  }
+  
+  if (startId === destId) {
+    typeLog(`> ✅ The Item "${name}" is already at your start node ${startId}. No path needed.`);
+    return;
+  }
+
+  // 3. Run Dijkstra (simulates the while loop updating distances and backtracing)
   const result = runDijkstra(startId, destId);
   currentPath = result.path;
   currentDistance = result.dist;
@@ -537,9 +573,10 @@ function handleFindShortestPath() {
     });
 
     updateStats('Dijkstra', currentDistance);
-    typeLog(`> 🗺️ Dijkstra: [${currentPath.join(" → ")}] Distance: ${currentDistance}`);
+    typeLog(`> 🗺️ Shortest distance from ${startId} to ${destId} is: ${currentDistance}`);
+    typeLog(`> 🗺️ Path Backtrace: ${[...currentPath].reverse().join(" -> ")}`);
   } else {
-    typeLog("> ⚠️ No path found between the given nodes.");
+    typeLog("> ⚠️ No path found to the destination.");
   }
 }
 
