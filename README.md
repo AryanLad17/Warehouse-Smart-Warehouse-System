@@ -55,7 +55,7 @@ The project consists of two tightly coupled components:
 - **Live inventory display** with per-rack item counts and visual node labels
 
 ### 🤖 Robot Navigation & Simulation
-- **Dijkstra's shortest path** — Find the optimal route between any two racks
+- **Dijkstra's shortest path** — Fully corrected and used as the primary pathfinding algorithm. Used for both navigation and transfer operations
 - **Animated robot dispatch** — Watch the robot traverse the computed path in real time
 - **Cargo visualization** — Robot displays what it's carrying during transfers
 
@@ -66,7 +66,6 @@ The project consists of two tightly coupled components:
 
 ### 🔍 Graph Traversal
 - **Breadth-First Search (BFS)** — Level-by-level sweep with ripple animation
-- **Depth-First Search (DFS)** — Deep-dive exploration with glow effects
 - **Visual traversal order** displayed in real time
 
 ### 🏷️ Product Lookup & Update
@@ -75,8 +74,8 @@ The project consists of two tightly coupled components:
 - **In-place quantity adjustment** (add/subtract stock)
 
 ### 🚚 Product Transfer
-- **Robot-powered inter-rack transfer** — Moves products along the shortest path
-- **Live inventory update** — Source rack decremented, destination rack incremented
+- **Robot-powered inter-rack transfer** — Uses shortest path (Dijkstra) with real-time animation between racks
+- **Live inventory update** — Correct inventory update after transfer (Source rack decremented, destination rack incremented)
 - **Transfer preview panel** — Before/after quantities shown before dispatch
 - **Transfer activity log** — Timestamped history of all transfer operations
 
@@ -88,6 +87,8 @@ The project consists of two tightly coupled components:
 - **Button ripple effects**, shake animations, and staggered data transitions
 - **Real-time terminal feed** showing all system activity
 - **Algorithm stats bar** displaying current algorithm, cost, edges, and nodes
+- **Improved edge weight visibility** for vertical edges (1→2, 3→4)
+- **Fixed label overlap issues** between nodes and edges
 
 ---
 
@@ -95,11 +96,10 @@ The project consists of two tightly coupled components:
 
 | Algorithm | Time Complexity | Use Case in Project |
 |-----------|:-:|---|
-| **Dijkstra's Shortest Path** | O(V²) | Robot navigation between racks |
+| **Dijkstra's Shortest Path** | O(V²) | Corrected implementation with proper initialization, relaxation, and path reconstruction |
 | **Kruskal's MST** | O(E log E) | Minimum-cost network wiring/cabling |
 | **Prim's MST** | O(V²) | Alternative MST from a specific root |
 | **Breadth-First Search** | O(V + E) | Layer-by-layer warehouse scanning |
-| **Depth-First Search** | O(V + E) | Exhaustive rack inspection |
 | **BST Insert/Search/Update** | O(h) | Product inventory management |
 | **Union-Find (DSU)** | O(α(n)) | Cycle detection for Kruskal's MST |
 
@@ -220,7 +220,6 @@ Switch to **🤖 Shortest Path**, set start and destination nodes, then:
 
 ### 5. Graph Traversal
 - **🔍 BFS** — Level-order sweep with ripple animations (rose)
-- **🔄 DFS** — Depth-first dive with glow effects (sky blue)
 
 ### 6. Product Lookup
 Go to **🏷️ Lookup**, search by name — matching racks light up on the graph. Adjust quantities directly from the results.
@@ -248,7 +247,7 @@ In the **🚚 Transfer** tab:
 │  │ ─ Dijkstra     │    │   ─ DOM Node Layer    │  │
 │  │ ─ Kruskal      │    │   ─ Robot Indicator   │  │
 │  │ ─ Prim         │◄──►│   ─ Rack Popup        │  │
-│  │ ─ BFS / DFS    │    │   ─ Stats Bar         │  │
+│  │ ─ BFS          │    │   ─ Stats Bar         │  │
 │  │ ─ Lookup       │    │                       │  │
 │  │ ─ Transfer     │    │                       │  │
 │  │ ─ Terminal     │    │                       │  │
@@ -293,7 +292,6 @@ In the **🚚 Transfer** tab:
 | **Union-Find (DSU)** | Array with path compression | Cycle detection in Kruskal's MST |
 | **Priority Queue** | Manual min-extraction (both) | Vertex selection in Dijkstra and Prim |
 | **Queue** | STL `queue` (C++) / Array (JS) | BFS traversal |
-| **Stack** | Array (JS) | DFS traversal |
 
 ---
 
