@@ -4,7 +4,8 @@
 #include <queue>
 using namespace std;
 
-struct node {
+struct node
+{
     string Name;
     int quant;
     int Location;
@@ -12,111 +13,155 @@ struct node {
     node *left;
 };
 
-struct Edge {
+struct Edge
+{
     int u, v, w;
 };
 
-struct node1 {
+struct node1
+{
     int v;
     int distance;
     node1 *next;
 };
 
-class Warehouse {
+class Warehouse
+{
     node1 *A[5];
+    int i,j;
     int parent[5];
-    int w[5][5], v[5], f[5], d[5];
+    int w[5][5],v[5],f[5],d[5];
     vector<Edge> edges;
 
-    int find(int x) {
-        if (parent[x] != x)
-            parent[x] = find(parent[x]);
-        return parent[x];
+    int find(int i)
+    {
+        if (parent[i] != i)
+            parent[i] = find(parent[i]);
+        return parent[i];
     }
 
-    void unite(int x, int y) {
-        parent[find(x)] = find(y);
-    }
-
-    void printPath(int dest) {
-        if (dest == -1) return;
-        printPath(f[dest]);
-        cout << dest << " ";
+    void unite(int x, int y)
+    {
+        parent[x] = y;
     }
 
 public:
-    Warehouse() {
-        for (int i = 0; i < 5; i++) {
+    Warehouse()
+    {
+        for (i = 0; i < 5; i++)
+        {
             A[i] = NULL;
-            parent[i] = i;
-            for (int j = 0; j < 5; j++) {
+            for (j = 0; j < 5; j++)
+            {
                 w[i][j] = 99;
             }
         }
     }
 
-    node *createnode(string Nam, int Q, int locate) {
+    node *createnode(string Nam, int Q, int locate)
+    {
         node *nn = new node;
         nn->Name = Nam;
         nn->quant = Q;
         nn->Location = locate;
-        nn->left = nn->right = NULL;
+        nn->right = NULL;
+        nn->left = NULL;
         return nn;
     }
 
-    node *insert(node *nn, string name, int quantity, int location) {
+    node *insert(node *nn, string name, int quantity, int location)
+    {
         if (nn == NULL)
             return createnode(name, quantity, location);
 
-        if (name < nn->Name)
-            nn->left = insert(nn->left, name, quantity, location);
-        else if (name > nn->Name)
+        if (nn->Name < name)
             nn->right = insert(nn->right, name, quantity, location);
+        else
+            nn->left = insert(nn->left, name, quantity, location);
 
         return nn;
     }
 
-    bool search(node *nn, string name) {
-        if (nn == NULL) return false;
+    bool search(node *nn, string name)
+    {
+        if (nn == NULL)
+            return false;
 
-        if (name < nn->Name)
-            return search(nn->left, name);
-        else if (name > nn->Name)
+        if (name > nn->Name)
             return search(nn->right, name);
+        else if (name < nn->Name)
+            return search(nn->left, name);
+        else if (nn->quant > 0)
+            return true;
         else
-            return nn->quant > 0;
+            return false;
     }
 
-    void update(node *nn, string name, int quan) {
-        if (nn == NULL) {
-            cout << "Product not found\n";
+    void updateadd(node *nn, string name, int quan)
+    {
+        if (nn == NULL)
+        {
+            cout << "There is no such product" << endl;
             return;
         }
 
-        if (name < nn->Name)
-            update(nn->left, name, quan);
-        else if (name > nn->Name)
-            update(nn->right, name, quan);
-        else {
+        if (nn->Name < name)
+            updateadd(nn->right, name, quan);
+        else if (nn->Name > name)
+            updateadd(nn->left, name, quan);
+        else
+        {
             nn->quant += quan;
-            cout << "Quantity updated\n";
+            cout << "Quantity updated successfully" << endl;
         }
     }
+   
+void updatesub(node *nn, string name, int quan)
+{
+    if(nn == NULL)
+    {
+        cout << "There is no such product to update" << endl;
+        return;
+    }
 
-    void add(int v1, int v2, int wgt) {
-        node1 *nn = new node1{v2, wgt, NULL};
+    if(nn->Name < name)
+        updatesub(nn->right, name, quan);
+    else if(nn->Name > name)
+        updatesub(nn->left, name, quan);
+    else
+    {
+        if(nn->quant >= quan)
+        {
+            nn->quant -= quan;
+            cout << "Quantity updated successfully" << endl;
+        }
+        else
+        {
+            cout << "Not enough quantity available" << endl;
+        }
+    }
+}
+
+    void add(int v1, int v2, int w)
+    {
+        node1 *nn = new node1;
+        nn->v = v2;
+        nn->distance = w;
+        nn->next = NULL;
 
         if (A[v1] == NULL)
             A[v1] = nn;
-        else {
-            node1 *temp = A[v1];
-            while (temp->next != NULL)
-                temp = temp->next;
-            temp->next = nn;
+        else
+        {
+            node1 *head = A[v1];
+            while (head->next != NULL)
+                head = head->next;
+            head->next = nn;
         }
     }
 
-    void edge(int v1, int v2, int distance) {
+    void edge(int v1, int v2, int distance)
+    {
         add(v1, v2, distance);
         add(v2, v1, distance);
         edges.push_back({v1, v2, distance});
@@ -124,218 +169,372 @@ public:
         w[v2][v1] = distance;
     }
 
-    void displaylist() {
-        for (int i = 0; i < 5; i++) {
+    void displaylist()
+    {
+        for (i = 0; i < 5; i++)
+        {
             cout << i << " -> ";
-            node1 *temp = A[i];
-            while (temp != NULL) {
-                cout << "(" << temp->distance << ")" << temp->v << " -> ";
-                temp = temp->next;
+            node1 *head = A[i];
+
+            while (head != NULL)
+            {
+                cout << "(" << head->distance << ")" << head->v << " -> ";
+                head = head->next;
             }
-            cout << "NULL\n";
+            cout << "NULL" << endl;
         }
     }
+   
+    int quantity(node *nn,string name)
+    {
+    if(nn==NULL)
+    {
+    cout<<"There is no such Item to find the quantity"<<endl;
+    return 0;
+    }
+    else if(nn->Name > name)
+    return quantity(nn->left,name);
+    else if(nn->Name < name)
+    return quantity(nn->right,name);
+    else
+    return nn->quant;
+    }
 
-    int findLocation(node *nn, string name) {
-        if (nn == NULL) return -1;
+    int findLocation(node *nn, string name)
+    {
+        if (nn == NULL)
+            return -1;
 
-        if (name < nn->Name)
-            return findLocation(nn->left, name);
-        else if (name > nn->Name)
+        if (name > nn->Name)
             return findLocation(nn->right, name);
+        else if (name < nn->Name)
+            return findLocation(nn->left, name);
         else
             return nn->Location;
     }
 
-    void bfs(int start) {
+    void bfs(int start)
+    {
         bool visited[5] = {false};
         queue<int> q;
 
         q.push(start);
         visited[start] = true;
 
-        cout << "BFS: ";
+        int count = 1;
 
-        while (!q.empty()) {
-            int u = q.front(); q.pop();
-            cout << u << " ";
+        cout<<"\nBFS Traversal: ";
+
+        while(!q.empty())
+        {
+            int u = q.front();
+            q.pop();
+
+            cout<<u<<" ";
 
             node1 *temp = A[u];
-            while (temp) {
-                if (!visited[temp->v]) {
+
+            while(temp != NULL)
+            {
+                if(!visited[temp->v])
+                {
                     visited[temp->v] = true;
                     q.push(temp->v);
+                    count++;
                 }
                 temp = temp->next;
             }
         }
-        cout << endl;
+
+        if(count == 5)
+            cout<<"\nGraph is CONNECTED"<<endl;
+        else
+            cout<<"\nGraph is DISCONNECTED"<<endl;
     }
 
-    void kruskalMST() {
-        for (int i = 0; i < 5; i++)
+    void kruskalMST()
+    {
+        for(i = 0 ; i < 6 ; i++)
+        {
             parent[i] = i;
+        }     
+        sort(edges.begin(), edges.end(), [](Edge a, Edge b)
+        { return a.w < b.w; });
 
-        sort(edges.begin(), edges.end(), [](Edge a, Edge b) {
-            return a.w < b.w;
-        });
+        int min_cost = 0;
 
-        int cost = 0;
+        for (int i=0;i<edges.size();i++)
+        {
+            int u = edges[i].u;
+            int v = edges[i].v;
 
-        for (int i = 0; i < edges.size(); i++) {
-            Edge e = edges[i];
-            if (find(e.u) != find(e.v)) {
-                cout << e.u << " -> " << e.v << " : " << e.w << endl;
-                cost += e.w;
-                unite(e.u, e.v);
+            if (find(u) != find(v))
+            {
+                cout << "Edge " << u << "->" << v << " Cost :" << edges[i].w << endl;
+                min_cost += edges[i].w;
+                unite(find(u), find(v));
             }
         }
-        cout << "MST Cost: " << cost << endl;
+        cout << "Minimum cost :" << min_cost << endl;
     }
 
-    void primMST(int start) {
-        int parentArray[5];
-        int key[5];
-        bool mstSet[5];
-
-        for (int i = 0; i < 5; i++) {
-            key[i] = 9999;
-            mstSet[i] = false;
-        }
-
-        key[start] = 0;
-        parentArray[start] = -1;
-
-        for (int count = 0; count < 4; count++) {
-            int u = -1, min = 9999;
-            for (int i = 0; i < 5; i++) {
-                if (!mstSet[i] && key[i] < min) {
-                    min = key[i];
-                    u = i;
-                }
+    int check()
+    {
+        for(i = 0 ; i < 5 ; i++)
+            {
+            if(v[i] == 0)
+                return 0;
             }
-
-            if (u == -1) break;
-            mstSet[u] = true;
-
-            for (int vNode = 0; vNode < 5; vNode++) {
-                if (w[u][vNode] != 99 && !mstSet[vNode] && w[u][vNode] < key[vNode]) {
-                    parentArray[vNode] = u;
-                    key[vNode] = w[u][vNode];
-                }
-            }
-        }
-
-        int cost = 0;
-        cout << "Prim's MST Edges:\n";
-        for (int i = 0; i < 5; i++) {
-            if (parentArray[i] != -1) {
-                cout << parentArray[i] << " -> " << i << " : " << w[i][parentArray[i]] << endl;
-                cost += w[i][parentArray[i]];
-            }
-        }
-        cout << "Prim's MST Cost: " << cost << endl;
+        return 1;
     }
 
-    void dij(int start, int dest) {
-        for (int i = 0; i < 5; i++) {
+    void dij(int start,string name,node * head)
+    {
+        if(search(head,name)==true)
+            {
+                int destination = findLocation(head,name);    
+                for(i = 0 ; i < 5 ; i++)
+                {
+                    v[i] = 0;
+                    f[i] = -1;
+                    d[i] = 99;
+                }
+
+                v[start] = 1;
+                for(i = 0 ; i < 5 ; i++)
+                {
+                    d[i] = w[start][i];
+                    f[i] = start;
+                }
+
+                    while(check()!=1)
+                {
+                    int min = 99;
+                    int u=-1;
+                    for(i = 0 ; i < 5 ; i++)
+                {
+                    if(v[i]==0 && min>d[i])
+                    {
+                        min = d[i];
+                        u = i;
+                    }
+                }
+                    v[u] = 1;
+
+                    for(i = 0 ; i < 5 ; i++)
+                {
+                    if(v[i]==0 && d[i]>(w[u][i]+min))
+                    {
+                        d[i] = min+w[u][i];
+                        f[i] = u;
+                    }
+                }
+                }
+
+                cout<<"Shortest distance from "<<start<<" to "<<destination<<" is:"<<d[destination]<<endl;
+                int s = destination;
+                while(s!=start)
+                {
+                    cout<<s<<"->"<<f[s]<<endl;
+                    s = f[s];
+                }
+            }
+            else
+                cout<<"The Item u are searching for is not available"<<endl;
+    }
+
+    void prims(int u)
+    {
+        int cost = 0;
+        cout<<"MST from prims:"<<endl;
+
+        for(i = 0 ; i < 5 ; i++)
+        {
             v[i] = 0;
-            d[i] = 99;
             f[i] = -1;
+            d[i] = 99;
         }
 
-        d[start] = 0;
+        v[u] = 1;
+        for(i = 0 ; i < 5 ; i++)
+        {
+            d[i] = w[u][i];
+            f[i] = u;
+        }
 
-        while (true) {
-            int u = -1, min = 99;
-
-            for (int i = 0; i < 5; i++) {
-                if (!v[i] && d[i] < min) {
+        while(check()!=1)
+        {
+            int min = 99;
+            for(i = 0 ; i < 5 ; i++)
+            {
+                if(v[i]==0 && min>d[i])
+                {
                     min = d[i];
                     u = i;
                 }
             }
 
-            if (u == -1) break;
-
+            cost += min;
             v[u] = 1;
+            cout<<f[u]<<"->"<<u<<" Distance:"<<d[u]<<endl;
 
-            for (int i = 0; i < 5; i++) {
-                if (!v[i] && w[u][i] != 99 && d[i] > d[u] + w[u][i]) {
-                    d[i] = d[u] + w[u][i];
+            for(i = 0 ; i < 5 ; i++)
+            {
+                if(v[i]==0 && d[i]>w[u][i])
+                {
+                    d[i] = w[u][i];
                     f[i] = u;
                 }
             }
         }
-
-        cout << "Path: ";
-        printPath(dest);
-        cout << "\nDistance: " << d[dest] << endl;
+        cout<<"minimum cost using prims is:"<<cost<<endl;
     }
 };
-
-int main() {
+int main()
+{
     Warehouse w;
     node *root = NULL;
 
-    int ch;
+    int choice;
 
-    do {
-        cout << "\n1.Insert 2.Search 3.Update 4.Edge 5.Display 6.Location 7.BFS 8.Kruskal 9.Dijkstra 10.Prim MST 0.Exit\n";
-        cin >> ch;
+    do
+    {
+        cout << "\n===== MENU =====" << endl;
+        cout << "1. Insert Product" << endl;
+        cout << "2. Search Product" << endl;
+        cout << "3. Add Quantity" << endl;
+        cout << "4. Reduce Quantity" << endl;
+        cout << "5. Get Quantity" << endl;
+        cout << "6. Add Graph Edge" << endl;
+        cout << "7. Display Graph" << endl;
+        cout << "8. BFS to check if the Graph is connected or not" << endl;
+        cout << "9. Kruskal MST" << endl;
+        cout << "10.  Prims MST" <<endl;
+        cout<<  "11.  Dijkstra(To find the shortest distance to get the Item)"<<endl;
+        cout << "0. Exit" << endl;
+
+        cout << "Enter choice: ";
+        cin >> choice;
 
         string name;
-        int q, loc, u, v, dist;
+        int q, loc, u, v, dist, start;
 
-        switch (ch) {
-            case 1:
-                cin >> name >> q >> loc;
+        if(choice == 1)
+        {
+            cout << "Enter Name:";
+            cin>>name;
+            cout<<"Enter Quantity:";
+            cin>>q;
+            cout<<"Enter Location:";
+            cin>>loc;
+            if(loc>=0 && loc<=4)
                 root = w.insert(root, name, q, loc);
-                break;
+            else
+                cout<<"Entered location is invalid"<<endl;
+        }
+        else if(choice == 2)
+        {
+            cout << "Enter product name: ";
+            cin >> name;
+            if(w.search(root, name))
+                cout << "Product Available" << endl;
+            else
+                cout << "Not Available" << endl;
+        }
+        else if(choice == 3)
+        {
+            cout << "Enter name:";
+            cin>>name;
+            cout<<"Enter Quantity: to add:";
+            cin >> q;
+            w.updateadd(root, name, q);
+        }
+        else if(choice == 4)
+        {
+            cout << "Enter name:";
+            cin>>name;
+            cout<<"Enter Quantity:";
+            cin>>q;
+            w.updatesub(root, name, q);
+        }
+        else if(choice == 5)
+        {
+            cout << "Enter name: ";
+            cin >> name;
+            cout << "Quantity: " << w.quantity(root, name) << endl;
+        }
+        else if(choice == 6)
+        {
+            int edges = 0;
+            cout<<"Enter the number of edges(Must be greater than 4)):";
+            cin>>edges;
+            cout<<"Enter the values of vertex from 0 to 4 only:"<<endl;
+            for(int i = 0 ; i < edges ; i++)
+            {
+                cout << "Enter u:";
+                cin>>u;
+                cout<<"Enter v:";
+                cin>>v;
+                cout<<"Enter the distance:";
+                cin>>dist;
+                if( u<5 && v<5 )
+                    w.edge(u, v, dist);
+                else
+                {
+                    cout<<"You are entering wrong location only location 0 to 4 are allowed"<<endl;
+                    i--;
+                }
+        
+            }
 
-            case 2:
-                cin >> name;
-                cout << (w.search(root, name) ? "Available\n" : "Not Available\n");
-                break;
-
-            case 3:
-                cin >> name >> q;
-                w.update(root, name, q);
-                break;
-
-            case 4:
-                cin >> u >> v >> dist;
-                w.edge(u, v, dist);
-                break;
-
-            case 5:
-                w.displaylist();
-                break;
-
-            case 6:
-                cin >> name;
-                cout << "Location: " << w.findLocation(root, name) << endl;
-                break;
-
-            case 7:
-                cin >> u;
-                w.bfs(u);
-                break;
-
-            case 8:
-                w.kruskalMST();
-                break;
-
-            case 9:
-                cin >> u >> v;
-                w.dij(u, v);
-                break;
-                
-            case 10:
-                cin >> u;
-                w.primMST(u);
-                break;
+        }
+        else if(choice == 7)
+        {
+            w.displaylist();
+        }
+        
+        else if(choice == 8)
+        {
+            cout << "Enter start vertex: ";
+            cin >> start;
+            w.bfs(start);
+        }
+        
+        else if(choice == 9)
+        {
+            w.kruskalMST();
         }
 
-    } while (ch != 0);
+        else if(choice == 10)
+        {
+            w.prims(0);
+        }
+
+        else if(choice == 11)
+        {
+            cout<<"Enter the Name of the Product:";
+            cin>>name;
+            cout<<"Enter the required Quantity:";
+            cin>>q;
+            cout<<"Enter the starting vertex:";
+            cin>>start;
+            if(w.search(root,name)==1 && w.quantity(root,name)>q)
+            {
+                w.updatesub(root,name,q);
+                w.dij(start,name,root);
+            }
+        }
+        
+        else if(choice == 0)
+        {
+            cout << "Exiting..." << endl;
+        }
+        else
+        {
+            cout << "Invalid choice" << endl;
+        }
+
+    } while(choice != 0);
+
+    return 0;
 }
